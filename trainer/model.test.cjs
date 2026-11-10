@@ -1,0 +1,8 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const m = require('./model.js');
+test('reference matches C1 transitions for every valid preset and role', async()=>{ const {advance}=await import('../labs/encounter.mjs');for(const preset of ['normal','last','single','empty'])for(const role of ['gm','player']){const state=m.initial(preset),copy=structuredClone(state),result=m.advance(state,role);try{assert.deepEqual(result,{state:advance(state,role),error:null});}catch(error){if(error.code==='ERR_ASSERTION')throw error;assert.equal(result.error,error.message);assert.deepEqual(result.state,state);}assert.deepEqual(state,copy);assert.notEqual(result.state.participants,state.participants);}});
+test('A contains only the intended round bug',()=>{const s=m.initial('last');assert.equal(m.advance(s,'gm','A').state.round,1);assert.equal(m.advance(s,'gm').state.round,2);assert.equal(m.advance(s,'player','A').error,'FORBIDDEN');});
+test('B contains intended role bug but wraps correctly',()=>{assert.equal(m.advance(m.initial(),'player','B').state.activeIndex,1);assert.equal(m.advance(m.initial('last'),'gm','B').state.round,2);});
+test('P1 matches existing model for valid/invalid inputs',async()=>{const {feedbackStrength}=await import('../labs/encounter.mjs');for(const x of [-1,...Array.from({length:13},(_,i)=>i),13,2.5,'6',null,undefined,NaN]){try{assert.equal(m.strength(x),feedbackStrength(x));}catch(e){if(e.code==='ERR_ASSERTION')throw e;assert.equal(m.strength(x),e.message);}}});
+test('coverage does not accept empty or arbitrary valid-only sets',()=>{assert.ok(Object.values(m.coverage([])).every(x=>!x));assert.equal(m.coverage([5,6]).lower,false);assert.ok(Object.values(m.coverage([-1,0,1,11,12,13,2.5])).every(Boolean));});
