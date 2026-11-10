@@ -1,0 +1,10 @@
+.obsidian/workspace*.json
+.obsidian/cache/
+.obsidian/plugins/
+.trash/
+.env
+.env.*
+!.env.example
+*.log
+Thumbs.db
+.DS_Store
