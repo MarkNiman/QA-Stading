@@ -12,7 +12,7 @@ errors = []
 links = anchors = 0
 for group in notes.values():
     for path in group:
-        for raw in re.findall(r'\[\[([^\]]+)\]\]', path.read_text()):
+        for raw in re.findall(r'\[\[([^\]]+)\]\]', path.read_text(encoding='utf-8')):
             target = raw.split('|')[0]
             parts = target.split('#', 1)
             name = parts[0]
@@ -23,7 +23,7 @@ for group in notes.values():
                 continue
             if len(parts) > 1:
                 anchors += 1
-                headings = re.findall(r'^#+\s+(.+)$', destinations[0].read_text(), re.M)
+                headings = re.findall(r'^#+\s+(.+)$', destinations[0].read_text(encoding='utf-8'), re.M)
                 if parts[1] not in [h.strip() for h in headings]:
                     errors.append((str(path.relative_to(root)), target, 'missing heading'))
 print(f'{links} wiki links; {anchors} heading links; {len(errors)} errors')
